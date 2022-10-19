@@ -3,6 +3,8 @@
 class Travel
 {
 
+    //Use curl to get a list of travel and group each travel by company. 
+    //The key of the array is the company id
     public function getTravel(Type $var = null)
     {
         $curl = curl_init();
@@ -29,6 +31,7 @@ class Travel
         
     }
 
+    //Group travel function for each company and at the same time calculate the total cost by each company.
     private function customTravels($listTravel = [])
     {
         $newListTravel = [];
@@ -49,7 +52,7 @@ class Travel
 class Company
 {
 
-
+    //Use curl to get a list of Company. 
     public function getCompany(Type $var = null)
     {
         $curl = curl_init();
@@ -86,11 +89,13 @@ class TestScript
         $company = new Company();
         $listCompany = $company->getCompany();
         $listCompanyWithPrice = $travel->getTravel();
-        $newTravelCost = [];
-
+        
+        //Create a new company list array. 
+        //Includes total cost and company travel list
+        $newListCompany = [];
         foreach ($listCompany as $key => $value) {
             if(isset($listCompanyWithPrice[$value->id])){
-                $newTravelCost[] =  [
+                $newListCompany[] =  [
                     'id' => $value->id,
                     'name' => $value->name,
                     'parentId' => $value->parentId,
@@ -98,7 +103,7 @@ class TestScript
                     'children' => $listCompanyWithPrice[$value->id]['data']
                 ];
             }else{
-                $newTravelCost[] =  [
+                $newListCompany[] =  [
                     'id' => $value->id,
                     'name' => $value->name,
                     'cost' => 9696,
@@ -108,11 +113,14 @@ class TestScript
           
         }
 
+        //Create an array of results. 
+        //Calculate the total cost of subsidiaries. 
+        //Put a subsidiary in the array
         $result = [];
-        foreach ($newTravelCost as $key => $value) {
-            $found_key = array_search($value['parentId'], array_column($newTravelCost, 'id'));
+        foreach ($newListCompany as $key => $value) {
+            $found_key = array_search($value['parentId'], array_column($newListCompany, 'id'));
             $result[$value['parentId']]['id'] =  $value['parentId'];
-            $result[$value['parentId']]['name'] =  $newTravelCost[$found_key ]['name'];
+            $result[$value['parentId']]['name'] =  $newListCompany[$found_key]['name'];
             isset($result[$value['parentId']]['cost']) ? $result[$value['parentId']]['cost'] +=  $value['cost'] : $result[$value['parentId']]['cost'] = $value['cost'];
             $result[$value['parentId']]['children'][] =  $value;
 
